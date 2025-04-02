@@ -25,10 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 appendDebugInfo(`当前位置：纬度=${lat}, 经度=${lng}`);
                 const destinations = await fetchDestinations(lat, lng);
                 if (destinations.length > 0) {
-                    renderDestinations(destinations);
-                    addMarkers(destinations, map);
+                    const destinationsWithStories = await getStoriesFromKimi(destinations);
+                    renderDestinations(destinationsWithStories);
+                    addMarkers(destinationsWithStories, map);
                     appendDebugInfo("附近的景点列表：");
-                    destinations.forEach(destination => {
+                    destinationsWithStories.forEach(destination => {
                         appendDebugInfo(`- ${destination.name} (地址: ${destination.story}, 位置: ${destination.location})`);
                     });
                 } else {
@@ -57,10 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 map.setCenter([lng, lat]); // 设置地图中心为 IP 定位位置
                 const destinations = await fetchDestinations(lat, lng);
                 if (destinations.length > 0) {
-                    renderDestinations(destinations);
-                    addMarkers(destinations, map);
+                    const destinationsWithStories = await getStoriesFromKimi(destinations);
+                    renderDestinations(destinationsWithStories);
+                    addMarkers(destinationsWithStories, map);
                     appendDebugInfo("附近的景点列表：");
-                    destinations.forEach(destination => {
+                    destinationsWithStories.forEach(destination => {
                         appendDebugInfo(`- ${destination.name} (地址: ${destination.story}, 位置: ${destination.location})`);
                     });
                 } else {
@@ -113,6 +115,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // 调用 Kimi AI API 获取景点故事
+    async function getStoriesFromKimi(destinations) {
+        const kimiApiKey = "sk-Nzfn1apmBjTjoQIxrdH1CpcMOAWtuDrb0HsHRAfYEXnX5LLe"; // 替换为你的 Kimi AI API 密钥
+        const kimiApiUrl = "https://api.moonshot.cn/v1"; // 替换为 Kimi AI API 的请求 URL
+
+        const destinationsWithStories = [];
+        for (const destination of destinations) {
+            try {
+                const response = await fetch(kimiApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${kimiApiKey}`
+                    },
+                    body: JSON.stringify({
+                        input: `请介绍一下景点 ${destination.name} 的故事`
+                    })
+                });
+                const data = await response.json();
+                destination.story = data.result || "暂无详细故事信息";
+                destinationsWithStories.push(destination);
+            } catch (error) {
+                console.error(`Kimi AI API 请求出错（景点：${destination.name}）:`, error);
+                destination.story = "获取故事信息失败";
+                destinationsWithStories.push(destination);
+            }
+        }
+        return destinationsWithStories;
+    }
+
     // 渲染目的地列表
     function renderDestinations(destinations) {
         console.log("渲染目的地列表:", destinations);
@@ -150,4 +182,4 @@ document.addEventListener("DOMContentLoaded", () => {
     function appendDebugInfo(message) {
         debugOutput.textContent += `${message}\n`;
     }
-});
+});    
