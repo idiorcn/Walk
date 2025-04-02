@@ -1,7 +1,7 @@
 import { appendDebugInfo } from './utils.js';
 
 export async function fetchDestinations(lat, lng) {
-    const amapApiKey = "45901b9e57f55f1065e5bf3c79a53500";
+    const amapApiKey = "sk-45901b9e57f55f1065e5bf3c79a53500"; // 替换为你的高德 API 密钥
     const url = `https://restapi.amap.com/v3/place/around`;
     const params = new URLSearchParams({
         key: amapApiKey,
