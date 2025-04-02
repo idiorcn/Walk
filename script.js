@@ -1,4 +1,6 @@
+import { Configuration, OpenAIApi } from "openai";
 document.addEventListener("DOMContentLoaded", () => {
+    
     const destinationList = document.getElementById("destination-list");
     const debugOutput = document.getElementById("debug-output");
 
@@ -115,26 +117,39 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    
     // 调用 Kimi AI API 获取景点故事
     async function getStoriesFromKimi(destinations) {
-        const kimiApiKey = "sk-Nzfn1apmBjTjoQIxrdH1CpcMOAWtuDrb0HsHRAfYEXnX5LLe"; // 替换为你的 Kimi AI API 密钥
-        const kimiApiUrl = "https://api.moonshot.cn/v1"; // 替换为 Kimi AI API 的请求 URL
-
+        const kimiApiKey = "sk-Nzfn1apmBjTjoQIxrdH1CpcMOAWtuDrb0HsHRAfYEXnX5LLe"; // 替换为你的 Kimi API 密钥
+        const configuration = new Configuration({
+            apiKey: kimiApiKey,
+            baseURL: "https://api.moonshot.cn/v1" // 设置 Kimi API 基础 URL
+        });
+        
+        const openai = new OpenAIApi(configuration);
         const destinationsWithStories = [];
+    
         for (const destination of destinations) {
             try {
-                const response = await fetch(kimiApiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${kimiApiKey}`
-                    },
-                    body: JSON.stringify({
-                        input: `请介绍一下景点 ${destination.name} 的故事`
-                    })
+                const response = await openai.createChatCompletion({
+                    model: "moonshot-v1-8k",
+                    messages: [
+                        {
+                            role: "system",
+                            content: "你是 Kimi，由 Moonshot AI 提供的人工智能助手，你更擅长中文和英文的对话。你会为用户提供安全，有帮助，准确的回答。同时，你会拒绝一切涉及恐怖主义，种族歧视，黄色暴力等问题的回答。Moonshot AI 为专有名词，不可翻译成其他语言。"
+                        },
+                        {
+                            role: "user",
+                            content: `请介绍一下景点 ${destination.name} 的故事`
+                        }
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 500,
+                    n: 1,
+                    stop: ["###"]
                 });
-                const data = await response.json();
-                destination.story = data.result || "暂无详细故事信息";
+    
+                destination.story = response.data.choices[0].message.content.trim();
                 destinationsWithStories.push(destination);
             } catch (error) {
                 console.error(`Kimi AI API 请求出错（景点：${destination.name}）:`, error);
@@ -142,9 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 destinationsWithStories.push(destination);
             }
         }
+    
         return destinationsWithStories;
     }
-
     // 渲染目的地列表
     function renderDestinations(destinations) {
         console.log("渲染目的地列表:", destinations);
