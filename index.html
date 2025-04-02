@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalkAround</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=45901b9e57f55f1065e5bf3c79a53500"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="map-container">
+            <h2>当前位置</h2>
+            <div id="map"></div>
+        </div>
+        <div id="info-container">
+            <h2>附近的目的地</h2>
+            <ul id="destination-list"></ul>
+        </div>
+    </div>
+    <div id="debug-container">
+        <h2>调试信息</h2>
+        <pre id="debug-output"></pre>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
