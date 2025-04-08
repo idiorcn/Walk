@@ -1,8 +1,8 @@
 import { appendDebugInfo } from './utils.js';
 
 export async function getStoriesFromDeepSeek(destinations) {
-    const deepSeekApiKey = "sk-6a06a4ce56df46b58b2fe659277f5487"; // 替换为你的 DeepSeek API 密钥
-    const deepSeekApiUrl = "https://api.deepseek.com"; // 替换为 DeepSeek API 的基础 URL
+    const deepSeekApiKey = "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"; // 替换为你的 DeepSeek API 密钥
+    const deepSeekApiUrl = "https://openrouter.ai/api/v1"; // 替换为 DeepSeek API 的基础 URL
     const destinationsWithStories = [];
 
     for (const destination of destinations) {
